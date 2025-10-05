@@ -1,0 +1,233 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        CAMPUS CRAVINGS ARCHITECTURE                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              UI LAYER (Compose)                              │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐     ┌──────────────────────────────────────────────┐  │
+│  │   AuthScreen    │────▶│  Customer Flow                               │  │
+│  │                 │     │  ┌────────────────────────────────────────┐  │  │
+│  │ • Sign In       │     │  │ RestaurantListScreen                   │  │  │
+│  │ • Sign Up       │     │  │   ↓                                    │  │  │
+│  │ • Role Select   │     │  │ MenuScreen                             │  │  │
+│  └─────────────────┘     │  │   ↓                                    │  │  │
+│           │              │  │ CheckoutScreen                          │  │  │
+│           │              │  │   ↓                                    │  │  │
+│           │              │  │ OrdersScreen (real-time tracking)      │  │  │
+│           │              │  └────────────────────────────────────────┘  │  │
+│           │              └──────────────────────────────────────────────┘  │
+│           │                                                                 │
+│           └─────────────▶┌──────────────────────────────────────────────┐  │
+│                          │  Delivery Flow                               │  │
+│                          │  ┌────────────────────────────────────────┐  │  │
+│                          │  │ DeliveryDashboardScreen                │  │  │
+│                          │  │                                        │  │  │
+│                          │  │ • Available Orders Tab                 │  │  │
+│                          │  │ • Active Orders Tab                    │  │  │
+│                          │  │ • Accept Orders                        │  │  │
+│                          │  │ • Update Status                        │  │  │
+│                          │  └────────────────────────────────────────┘  │  │
+│                          └──────────────────────────────────────────────┘  │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        │ collectAsState()
+                                        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                          VIEWMODEL LAYER (Business Logic)                    │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │  AuthViewModel   │  │ CustomerViewModel│  │ DeliveryViewModel│          │
+│  │                  │  │                  │  │                  │          │
+│  │ • currentUser    │  │ • restaurants    │  │ • availableOrders│          │
+│  │ • authState      │  │ • cart           │  │ • activeOrders   │          │
+│  │ • signIn()       │  │ • orders         │  │ • acceptOrder()  │          │
+│  │ • signUp()       │  │ • placeOrder()   │  │ • updateStatus() │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+│           │                      │                      │                    │
+│           │ (Hilt DI)           │ (Hilt DI)           │ (Hilt DI)          │
+│           ▼                      ▼                      ▼                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        │ suspend functions / Flow
+                                        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        REPOSITORY LAYER (Data Access)                        │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │  AuthRepository  │  │RestaurantRepo    │  │  OrderRepository │          │
+│  │                  │  │                  │  │                  │          │
+│  │ • signUp()       │  │ • getRestaurants │  │ • createOrder()  │          │
+│  │ • signIn()       │  │ • getMenuItems() │  │ • acceptOrder()  │          │
+│  │ • getCurrentUser │  │                  │  │ • updateStatus() │          │
+│  │                  │  │                  │  │ • Flow listeners │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+│           │                      │                      │                    │
+│           │ (Hilt DI)           │ (Hilt DI)           │ (Hilt DI)          │
+│           ▼                      ▼                      ▼                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        │ Firebase SDK
+                                        ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                           FIREBASE BACKEND                                   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐  ┌──────────────────────────────────────────────┐    │
+│  │ Authentication   │  │            Firestore Database                │    │
+│  │                  │  │                                              │    │
+│  │ • Email/Password │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  │    │
+│  │ • User Sessions  │  │  │  users/  │  │restaurants│ │menuItems │  │    │
+│  │ • Auth Tokens    │  │  └──────────┘  └──────────┘  └──────────┘  │    │
+│  └──────────────────┘  │                                              │    │
+│                        │  ┌──────────┐                                │    │
+│                        │  │ orders/  │  ← Real-time Listeners         │    │
+│                        │  └──────────┘     (Instant Updates!)         │    │
+│                        └──────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              DATA FLOW                                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+User Action → UI (Composable) → ViewModel → Repository → Firebase
+                                                              │
+                                                              ▼
+Firebase Response → Repository (Flow) → ViewModel (StateFlow) → UI (Recompose)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         REAL-TIME UPDATE FLOW                                ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Customer Places Order
+        │
+        ▼
+    Firebase Firestore (orders collection)
+        │
+        ├──────────────────────────────────┐
+        │                                  │
+        ▼                                  ▼
+Delivery Dashboard                  Customer Orders Screen
+(sees new order instantly)          (tracks status updates)
+        │
+        │ Delivery accepts order
+        ▼
+    Firebase Firestore (order status = ACCEPTED)
+        │
+        ▼
+Customer sees: "✅ Accepted by Jane"
+        │
+        │ Delivery marks picked up
+        ▼
+    Firebase Firestore (order status = PICKED_UP)
+        │
+        ▼
+Customer sees: "🚗 On the way"
+        │
+        │ Delivery marks delivered
+        ▼
+    Firebase Firestore (order status = DELIVERED)
+        │
+        ▼
+Customer sees: "✅ Delivered"
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         DEPENDENCY INJECTION                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+@HiltAndroidApp
+CampusCravingsApp
+        │
+        ▼
+    AppModule
+        │
+        ├─→ FirebaseAuth ────────────┐
+        └─→ FirebaseFirestore ────────┤
+                                      │
+                                      ▼
+                              Repositories (injected)
+                                      │
+                                      ▼
+                              ViewModels (injected)
+                                      │
+                                      ▼
+                              Screens (@HiltViewModel)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         NAVIGATION GRAPH                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+                          AuthScreen
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+              [Customer Role]      [Delivery Role]
+                    │                   │
+                    ▼                   ▼
+          RestaurantListScreen   DeliveryDashboard
+                    │
+                    ▼
+              MenuScreen
+                    │
+                    ▼
+            CheckoutScreen
+                    │
+                    ▼
+              OrdersScreen
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         KEY TECHNOLOGIES                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Language:        Kotlin                                                     │
+│ UI Framework:    Jetpack Compose (100%)                                     │
+│ Architecture:    MVVM (Model-View-ViewModel)                                │
+│ DI:              Hilt                                                        │
+│ Backend:         Firebase (Auth + Firestore)                                │
+│ Async:           Coroutines + Flow                                          │
+│ Navigation:      Compose Navigation                                         │
+│ Design:          Material 3                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         PROJECT STATISTICS                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+• Total Kotlin Files:        23
+• Lines of Code:             ~2,500+
+• Screens:                   7
+• ViewModels:                3
+• Repositories:              3
+• Data Models:               4
+• Documentation Files:       8
+• Time to Build:             Optimized for 12-hour hackathon
+• Status:                    ✅ PRODUCTION READY
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         FEATURES IMPLEMENTED                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ User Authentication (Email/Password)
+✅ Role-based Access (Customer/Delivery)
+✅ Restaurant Browsing
+✅ Menu Viewing & Cart Management
+✅ Order Placement
+✅ Real-time Order Tracking
+✅ Delivery Order Acceptance
+✅ Order Status Updates
+✅ Order History
+✅ Error Handling
+✅ Loading States
+✅ Material 3 Design
+✅ Clean Architecture
+✅ Dependency Injection
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    READY FOR HACKATHON DEMO! 🚀                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝

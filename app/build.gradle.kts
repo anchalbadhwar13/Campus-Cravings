@@ -54,7 +54,9 @@ dependencies {
     implementation("androidx.webkit:webkit:1.11.0") // Or the latest version
     // Coil for asynchronous image loading
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.8") // Or a newer version
 
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 
     // ----------------------------------------

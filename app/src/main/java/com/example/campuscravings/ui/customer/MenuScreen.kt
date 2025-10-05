@@ -15,6 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.campuscravings.data.model.MenuItem
+import com.example.campuscravings.R
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,9 +30,9 @@ fun MenuScreen(
     val menuItems by viewModel.menuItems.collectAsState()
     val cart by viewModel.cart.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     val cartItemCount = cart.values.sum()
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,6 +117,24 @@ fun MenuScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // ✅ Image card at the top
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        AsyncImage(
+                            model = restaurant?.imageUrl ?: "", // URL from your backend
+                            contentDescription = restaurant?.name ?: "Restaurant image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+
+                // ✅ Your existing menu items
                 items(menuItems) { item ->
                     MenuItemCard(
                         item = item,
@@ -123,6 +144,7 @@ fun MenuScreen(
                     )
                 }
             }
+
         }
     }
 }
@@ -165,9 +187,9 @@ fun MenuItemCard(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             if (quantity > 0) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

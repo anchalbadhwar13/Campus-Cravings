@@ -6,9 +6,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.campuscravings.data.model.UserRole
 import com.example.campuscravings.ui.auth.AuthScreen
 import com.example.campuscravings.ui.auth.AuthViewModel
@@ -22,6 +24,9 @@ sealed class Screen(val route: String) {
     object RestaurantList : Screen("restaurant_list")
     object Menu : Screen("menu")
     object Checkout : Screen("checkout")
+    object OrderTracking : Screen("order_tracking/{orderId}") {
+        fun createRoute(orderId: String) = "order_tracking/$orderId"
+    }
     object Orders : Screen("orders")
     object DeliveryDashboard : Screen("delivery_dashboard")
     object DeliveryTracking : Screen("delivery_tracking")
@@ -102,10 +107,38 @@ fun AppNavigation(
             CheckoutScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
-                onOrderPlaced = {
+                onOrderPlaced = { orderId ->
+                    navController.navigate(Screen.OrderTracking.createRoute(orderId)) {
+                        popUpTo(Screen.RestaurantList.route) { inclusive = false }
+                    }
+                }
+            )
+        }
+        
+        composable(
+            route = "order_tracking/{orderId}",
+            arguments = listOf(
+                navArgument("orderId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
+            OrderTrackingScreen(
+                viewModel = viewModel,
+                orderId = orderId,
+                onBack = { navController.popBackStack() },
+                onDone = {
                     navController.navigate(Screen.RestaurantList.route) {
                         popUpTo(Screen.RestaurantList.route) { inclusive = true }
                     }
+                },
+                onViewMap = {
+                    navController.navigate(Screen.DeliveryTracking.route)
                 }
             )
         }
@@ -117,7 +150,10 @@ fun AppNavigation(
             val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             OrdersScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onTrackOrder = { orderId ->
+                    navController.navigate(Screen.OrderTracking.createRoute(orderId))
+                }
             )
         }
 
@@ -125,7 +161,8 @@ fun AppNavigation(
             val viewModel: DeliveryViewModel = hiltViewModel()
             DeliveryDashboardScreen(viewModel = viewModel)
         }
-        composable("delivery_tracking") {
+        
+        composable(Screen.DeliveryTracking.route) {
             DeliveryTrackingScreen()
         }
     }

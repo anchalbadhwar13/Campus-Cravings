@@ -23,7 +23,8 @@ import java.util.*
 @Composable
 fun OrdersScreen(
     viewModel: CustomerViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onTrackOrder: (String) -> Unit = {}
 ) {
     val orders by viewModel.orders.collectAsState()
     
@@ -60,7 +61,10 @@ fun OrdersScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(orders) { order ->
-                    OrderCard(order = order)
+                    OrderCard(
+                        order = order,
+                        onTrackOrder = { onTrackOrder(order.id) }
+                    )
                 }
             }
         }
@@ -68,7 +72,10 @@ fun OrdersScreen(
 }
 
 @Composable
-fun OrderCard(order: Order) {
+fun OrderCard(
+    order: Order,
+    onTrackOrder: () -> Unit = {}
+) {
     val statusColor = when (order.status) {
         OrderStatus.PENDING -> MaterialTheme.colorScheme.secondary
         OrderStatus.ACCEPTED -> MaterialTheme.colorScheme.tertiary
@@ -136,7 +143,8 @@ fun OrderCard(order: Order) {
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "📍 ${order.deliveryLocation}",
@@ -149,6 +157,17 @@ fun OrderCard(order: Order) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
+            }
+            
+            // Track Order Button (only for active orders)
+            if (order.status in listOf(OrderStatus.PENDING, OrderStatus.ACCEPTED, OrderStatus.PICKED_UP)) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onTrackOrder,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Track Order")
+                }
             }
         }
     }

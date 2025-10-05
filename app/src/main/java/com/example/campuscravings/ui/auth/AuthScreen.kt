@@ -249,7 +249,7 @@ fun AnimatedBurgerIcon() {
 
     Box(
         modifier = Modifier
-            .size(72.dp)
+            .size(85.dp)
             .graphicsLayer { translationY = bounce }
             .background(
                 Color(0xFFFF6B35),
@@ -257,7 +257,11 @@ fun AnimatedBurgerIcon() {
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text("🍔", fontSize = 36.sp)
+        Image(
+            painter = painterResource(id = R.drawable.ic_launcher),
+            contentDescription = "App Logo",
+            modifier = Modifier.size(48.dp)
+        )
     }
 }
 

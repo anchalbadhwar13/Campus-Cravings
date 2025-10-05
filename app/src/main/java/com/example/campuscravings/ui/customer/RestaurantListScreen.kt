@@ -32,11 +32,13 @@ fun RestaurantListScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding(),
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
             Column(
-                modifier = Modifier.padding(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
                 Text(
                     text = "🍔 Campus Cravings",

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 fun CheckoutScreen(
     viewModel: CustomerViewModel,
     onBack: () -> Unit,
-    onOrderPlaced: () -> Unit
+    onOrderPlaced: (String) -> Unit
 ) {
     val restaurant by viewModel.selectedRestaurant.collectAsState()
     val menuItems by viewModel.menuItems.collectAsState()
@@ -29,10 +29,11 @@ fun CheckoutScreen(
     var deliveryLocation by remember { mutableStateOf("") }
     var specialInstructions by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
+    var placedOrderId by remember { mutableStateOf<String?>(null) }
     
-    LaunchedEffect(error) {
-        if (error == null && !isLoading && cart.isEmpty()) {
-            onOrderPlaced()
+    LaunchedEffect(placedOrderId) {
+        placedOrderId?.let { orderId ->
+            onOrderPlaced(orderId)
         }
     }
     
@@ -165,7 +166,7 @@ fun CheckoutScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = deliveryLocation.isNotBlank() && !isLoading
+                    enabled = deliveryLocation.isNotBlank() && !isLoading && placedOrderId == null
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
@@ -189,7 +190,9 @@ fun CheckoutScreen(
                 Button(
                     onClick = {
                         showDialog = false
-                        viewModel.placeOrder(deliveryLocation, specialInstructions)
+                        viewModel.placeOrder(deliveryLocation, specialInstructions) { orderId ->
+                            placedOrderId = orderId
+                        }
                     }
                 ) {
                     Text("Confirm")

@@ -65,16 +65,24 @@ class CustomerViewModel @Inject constructor(
     fun selectRestaurant(restaurant: Restaurant) {
         _selectedRestaurant.value = restaurant
         _cart.value = emptyMap()
+        _menuItems.value = emptyList() // Clear previous menu items immediately
         loadMenuItems(restaurant.id)
     }
     
     private fun loadMenuItems(restaurantId: String) {
         viewModelScope.launch {
             _isLoading.value = true
+            android.util.Log.d("CustomerViewModel", "Loading menu items for restaurant: $restaurantId")
             val result = restaurantRepository.getMenuItems(restaurantId)
             if (result.isSuccess) {
-                _menuItems.value = result.getOrNull() ?: emptyList()
+                val items = result.getOrNull() ?: emptyList()
+                android.util.Log.d("CustomerViewModel", "Loaded ${items.size} menu items for restaurant: $restaurantId")
+                items.forEach { item ->
+                    android.util.Log.d("CustomerViewModel", "  - ${item.name} (${item.id}) for restaurant: ${item.restaurantId}")
+                }
+                _menuItems.value = items
             } else {
+                android.util.Log.e("CustomerViewModel", "Error loading menu items: ${result.exceptionOrNull()?.message}")
                 _error.value = result.exceptionOrNull()?.message
             }
             _isLoading.value = false
@@ -109,7 +117,7 @@ class CustomerViewModel @Inject constructor(
         return total
     }
     
-    fun placeOrder(deliveryLocation: String, specialInstructions: String) {
+    fun placeOrder(deliveryLocation: String, specialInstructions: String, onSuccess: (String) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             val user = authRepository.getCurrentUser()
@@ -150,9 +158,11 @@ class CustomerViewModel @Inject constructor(
             
             val result = orderRepository.createOrder(order)
             if (result.isSuccess) {
+                val orderId = result.getOrNull()!!
                 _cart.value = emptyMap()
                 _selectedRestaurant.value = null
                 _error.value = null
+                onSuccess(orderId)
             } else {
                 _error.value = result.exceptionOrNull()?.message
             }

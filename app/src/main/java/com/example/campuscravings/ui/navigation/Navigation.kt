@@ -3,6 +3,7 @@ package com.example.campuscravings.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -63,7 +64,10 @@ fun AppNavigation(
         }
         
         composable(Screen.RestaurantList.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             RestaurantListScreen(
                 viewModel = viewModel,
                 onRestaurantClick = { restaurant ->
@@ -77,7 +81,10 @@ fun AppNavigation(
         }
         
         composable(Screen.Menu.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             MenuScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
@@ -86,7 +93,10 @@ fun AppNavigation(
         }
         
         composable(Screen.Checkout.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             CheckoutScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
@@ -99,7 +109,10 @@ fun AppNavigation(
         }
         
         composable(Screen.Orders.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             OrdersScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }

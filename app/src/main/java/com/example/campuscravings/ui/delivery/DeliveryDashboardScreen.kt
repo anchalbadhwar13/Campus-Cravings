@@ -15,25 +15,33 @@ import com.example.campuscravings.data.model.OrderStatus
 import java.text.SimpleDateFormat
 import java.util.*
 
+// In your DeliveryDashboard Composable
+import android.content.Intent
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import android.net.Uri
+
+
 @Composable
-fun DeliveryDashboardScreen(
-    viewModel: DeliveryViewModel
-) {
+
+
+fun DeliveryDashboardScreen(viewModel: DeliveryViewModel) {
     val availableOrders by viewModel.availableOrders.collectAsState()
     val activeOrders by viewModel.activeOrders.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    
     var selectedTab by remember { mutableStateOf(0) }
-    
+
+    val context = LocalContext.current // get context once
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Header
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = "🚗 Delivery Dashboard",
                     fontSize = 24.sp,
@@ -44,9 +52,25 @@ fun DeliveryDashboardScreen(
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // ✅ Button to open Room Finder website
+                Button(onClick = {
+                    val intent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://roomfinder.sfu.ca/apps/sfuroomfinder_web/?q=ASB%209703")
+                    )
+                    context.startActivity(intent)
+                }) {
+                    Text("Open Room Finder")
+                }
             }
         }
-        
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Tabs for Available / Active Orders
         TabRow(selectedTabIndex = selectedTab) {
             Tab(
                 selected = selectedTab == 0,
@@ -59,7 +83,7 @@ fun DeliveryDashboardScreen(
                 text = { Text("Active (${activeOrders.size})") }
             )
         }
-        
+
         if (isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -150,23 +174,23 @@ fun AvailableOrderCard(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = "Deliver to: ${order.deliveryLocation}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Customer: ${order.customerName}",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             if (order.specialInstructions.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -176,9 +200,9 @@ fun AvailableOrderCard(
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Button(
                 onClick = onAccept,
                 modifier = Modifier.fillMaxWidth()
@@ -258,25 +282,25 @@ fun ActiveOrderCard(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = "Deliver to: ${order.deliveryLocation}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Customer: ${order.customerName}",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             order.items.forEach { item ->
                 Text(
                     text = "• ${item.name} x${item.quantity}",
@@ -284,7 +308,7 @@ fun ActiveOrderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (order.specialInstructions.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -294,9 +318,9 @@ fun ActiveOrderCard(
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             when (order.status) {
                 OrderStatus.ACCEPTED -> {
                     Button(

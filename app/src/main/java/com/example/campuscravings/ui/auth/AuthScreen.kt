@@ -261,37 +261,6 @@ fun AnimatedBurgerIcon() {
     }
 }
 
-//@Composable
-//fun AnimatedHeartText() {
-//    val infiniteTransition = rememberInfiniteTransition(label = "heart")
-//    val heartScale by infiniteTransition.animateFloat(
-//        initialValue = 1f,
-//        targetValue = 1.2f,
-//        animationSpec = infiniteRepeatable(
-//            animation = tween(800, easing = FastOutSlowInEasing),
-//            repeatMode = RepeatMode.Reverse
-//        ),
-//        label = "heart_scale"
-//    )
-//
-//    Text(
-//        buildAnnotatedString {
-//            append("Made with ")
-//            withStyle(SpanStyle(color = Color.Red)) {
-//                append("❤")
-//            }
-//            append(" by students")
-//        },
-//        color = Color(0xFF5B6B7A),
-//        fontSize = 16.sp,
-//        modifier = Modifier.graphicsLayer {
-//            // Only scale the heart emoji (rough approximation)
-//            scaleX = if (heartScale > 1.1f) heartScale else 1f
-//            scaleY = if (heartScale > 1.1f) heartScale else 1f
-//        }
-//    )
-//}
-
 @Composable
 fun FloatingFoodEmojis() {
     val emojis = listOf(
@@ -485,13 +454,13 @@ fun SignInForm(
 
         Row(
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically, // ✅ this aligns text and button vertically
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Don't have an account? ")
             TextButton(
                 onClick = onSwitchToSignUp,
-                contentPadding = PaddingValues(0.dp) // ✅ removes default button padding
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text("Sign Up", color = Color(0xFF1563F7))
             }
@@ -653,12 +622,13 @@ fun SignUpForm(
 
         Row(
             horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Already have an account? ")
             TextButton(
                 onClick = onSwitchToSignIn,
-                modifier = Modifier.animateContentSize()
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text("Sign In", color = Color(0xFF1563F7))
             }

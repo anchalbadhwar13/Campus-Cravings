@@ -512,11 +512,47 @@ fun SignUpForm(
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf(UserRole.CUSTOMER) }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Role Selection
+        Text(
+            text = "I want to sign up as:",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+        
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Customer Button
+            FilterChip(
+                selected = selectedRole == UserRole.CUSTOMER,
+                onClick = { selectedRole = UserRole.CUSTOMER },
+                label = { Text("🍔 Customer") },
+                modifier = Modifier.weight(1f)
+            )
+            
+            // Delivery Button
+            FilterChip(
+                selected = selectedRole == UserRole.DELIVERY,
+                onClick = { selectedRole = UserRole.DELIVERY },
+                label = { Text("🚗 Delivery") },
+                modifier = Modifier.weight(1f)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
@@ -583,7 +619,7 @@ fun SignUpForm(
 
         Button(
             onClick = {
-                viewModel.signUp(email, password, name, phone, UserRole.CUSTOMER)
+                viewModel.signUp(email, password, name, phone, selectedRole)
             },
             modifier = Modifier
                 .fillMaxWidth()

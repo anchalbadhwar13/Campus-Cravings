@@ -31,9 +31,16 @@ class DeliveryViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
     
+    private val _totalEarnings = MutableStateFlow(0.0)
+    val totalEarnings: StateFlow<Double> = _totalEarnings.asStateFlow()
+    
+    private val _completedOrdersCount = MutableStateFlow(0)
+    val completedOrdersCount: StateFlow<Int> = _completedOrdersCount.asStateFlow()
+    
     init {
         loadAvailableOrders()
         loadActiveOrders()
+        loadEarningsData()
     }
     
     private fun loadAvailableOrders() {
@@ -78,9 +85,31 @@ class DeliveryViewModel @Inject constructor(
             val result = orderRepository.updateOrderStatus(orderId, status)
             if (result.isFailure) {
                 _error.value = result.exceptionOrNull()?.message
+            } else if (status == OrderStatus.DELIVERED) {
+                // Refresh earnings after delivery
+                loadEarningsData()
             }
             _isLoading.value = false
         }
+    }
+    
+    private fun loadEarningsData() {
+        viewModelScope.launch {
+            val user = authRepository.getCurrentUser()
+            if (user != null) {
+                _totalEarnings.value = user.totalEarnings
+                
+                // Get completed orders count
+                val countResult = orderRepository.getCompletedOrdersCount(user.id)
+                if (countResult.isSuccess) {
+                    _completedOrdersCount.value = countResult.getOrNull() ?: 0
+                }
+            }
+        }
+    }
+    
+    fun refreshEarnings() {
+        loadEarningsData()
     }
     
     fun clearError() {

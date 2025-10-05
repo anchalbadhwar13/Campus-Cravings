@@ -8,7 +8,8 @@ data class User(
     val role: UserRole = UserRole.CUSTOMER,
     val currentLocation: String = "", // Building name/location
     val isAvailable: Boolean = false, // For delivery people
-    val activeOrderId: String? = null
+    val activeOrderId: String? = null,
+    val totalEarnings: Double = 0.0 // Total earnings for delivery people
 )
 
 enum class UserRole {

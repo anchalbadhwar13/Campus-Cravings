@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delivery Tracking</title>
+
+    <!-- Leaflet CSS + JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          margin: 0;
+          padding: 10px;
+        }
+        h2 {
+          color: #2a2a7a;
+        }
+        #timer {
+          font-weight: bold;
+          color: darkred;
+        }
+        #map {
+          height: 500px;
+          width: 100%;
+          margin-top: 15px;
+          border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+<h2>🚚 Your order will arrive in <span id="timer">14:00</span></h2>
+<div id="map"></div>
+
+<script>
+    // Start (store) and end (home) coordinates
+    const store = { lat: 49.25284, lng: -122.89639 };
+    const home  = { lat: 49.277748, lng: -122.909050 };
+
+    // Init map
+    var map = L.map('map').setView([store.lat, store.lng], 14);
+
+    // Add OSM tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Custom car icon
+    var carIcon = L.icon({
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/61/61205.png",
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+
+    var carMarker = L.marker([store.lat, store.lng], { icon: carIcon }).addTo(map);
+
+    // Routing machine setup
+    var control = L.Routing.control({
+      waypoints: [
+        L.latLng(store.lat, store.lng),
+        L.latLng(home.lat, home.lng)
+      ],
+      lineOptions: {
+        styles: [{ color: 'blue', opacity: 0.7, weight: 5 }]
+      },
+      createMarker: function() { return null; } // hide default pins
+    }).addTo(map);
+
+    // Animate car + sync with timer
+    control.on('routesfound', function(e) {
+      var coords = e.routes[0].coordinates;
+      var totalSteps = coords.length;
+      var totalTime = 2 * 60; // 14 minutes in seconds
+      var stepDuration = (totalTime * 1000) / totalSteps; // ms per step
+      let i = 0;
+
+      function moveCar() {
+        carMarker.setLatLng([coords[i].lat, coords[i].lng]);
+        if (i < totalSteps - 1) {
+          i++;
+          setTimeout(moveCar, stepDuration);
+        }
+      }
+      moveCar();
+    });
+
+    // Countdown Timer (14:00)
+    function startTimer(duration) {
+      let timeLeft = duration;
+      const timerEl = document.getElementById("timer");
+
+      const countdown = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerEl.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          timerEl.textContent = "Arrived!";
+        }
+        timeLeft--;
+      }, 1000);
+    }
+
+    startTimer(2 * 60); // 14 mins
+</script>
+</body>
+</html>

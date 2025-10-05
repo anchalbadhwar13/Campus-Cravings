@@ -13,6 +13,7 @@ import com.example.campuscravings.ui.auth.AuthScreen
 import com.example.campuscravings.ui.auth.AuthViewModel
 import com.example.campuscravings.ui.customer.*
 import com.example.campuscravings.ui.delivery.DeliveryDashboardScreen
+import com.example.campuscravings.ui.delivery.DeliveryTrackingScreen
 import com.example.campuscravings.ui.delivery.DeliveryViewModel
 
 sealed class Screen(val route: String) {
@@ -22,6 +23,7 @@ sealed class Screen(val route: String) {
     object Checkout : Screen("checkout")
     object Orders : Screen("orders")
     object DeliveryDashboard : Screen("delivery_dashboard")
+    object DeliveryTracking : Screen("delivery_tracking")
 }
 
 @Composable
@@ -30,7 +32,7 @@ fun AppNavigation(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsState()
-    
+
     val startDestination = if (currentUser != null) {
         when (currentUser?.role) {
             UserRole.CUSTOMER -> Screen.RestaurantList.route
@@ -40,7 +42,7 @@ fun AppNavigation(
     } else {
         Screen.Auth.route
     }
-    
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -61,7 +63,7 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.RestaurantList.route) {
             val viewModel: CustomerViewModel = hiltViewModel()
             RestaurantListScreen(
@@ -75,7 +77,7 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.Menu.route) {
             val viewModel: CustomerViewModel = hiltViewModel()
             MenuScreen(
@@ -84,7 +86,7 @@ fun AppNavigation(
                 onCheckout = { navController.navigate(Screen.Checkout.route) }
             )
         }
-        
+
         composable(Screen.Checkout.route) {
             val viewModel: CustomerViewModel = hiltViewModel()
             CheckoutScreen(
@@ -97,7 +99,7 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.Orders.route) {
             val viewModel: CustomerViewModel = hiltViewModel()
             OrdersScreen(
@@ -105,10 +107,13 @@ fun AppNavigation(
                 onBack = { navController.popBackStack() }
             )
         }
-        
+
         composable(Screen.DeliveryDashboard.route) {
             val viewModel: DeliveryViewModel = hiltViewModel()
             DeliveryDashboardScreen(viewModel = viewModel)
+        }
+        composable("delivery_tracking") {
+            DeliveryTrackingScreen()
         }
     }
 }

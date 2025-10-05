@@ -485,12 +485,13 @@ fun SignInForm(
 
         Row(
             horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically, // ✅ this aligns text and button vertically
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Don't have an account? ")
             TextButton(
                 onClick = onSwitchToSignUp,
-                modifier = Modifier.animateContentSize()
+                contentPadding = PaddingValues(0.dp) // ✅ removes default button padding
             ) {
                 Text("Sign Up", color = Color(0xFF1563F7))
             }

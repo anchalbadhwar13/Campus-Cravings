@@ -249,18 +249,14 @@ fun AnimatedBurgerIcon() {
 
     Box(
         modifier = Modifier
-            .size(85.dp)
-            .graphicsLayer { translationY = bounce }
-            .background(
-                Color(0xFFFF6B35),
-                shape = androidx.compose.foundation.shape.CircleShape
-            ),
+            .size(150.dp)
+            .graphicsLayer { translationY = bounce },
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_launcher),
             contentDescription = "App Logo",
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier.size(150.dp)
         )
     }
 }

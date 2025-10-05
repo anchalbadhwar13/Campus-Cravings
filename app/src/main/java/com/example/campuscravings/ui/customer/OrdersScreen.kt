@@ -36,7 +36,8 @@ fun OrdersScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                modifier = Modifier.statusBarsPadding()
             )
         }
     ) { padding ->

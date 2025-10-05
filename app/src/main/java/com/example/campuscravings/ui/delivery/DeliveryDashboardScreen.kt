@@ -36,7 +36,9 @@ fun DeliveryDashboardScreen(
     Column(modifier = Modifier.fillMaxSize()) {
         // Header with Earnings
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding(),
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
             Column(

@@ -52,7 +52,11 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     implementation("androidx.webkit:webkit:1.11.0") // Or the latest version
+    // Coil for asynchronous image loading
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.8") // Or a newer version
 
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 
     // ----------------------------------------

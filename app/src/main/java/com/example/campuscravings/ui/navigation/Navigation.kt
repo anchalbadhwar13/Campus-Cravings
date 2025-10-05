@@ -3,6 +3,7 @@ package com.example.campuscravings.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,7 @@ import com.example.campuscravings.ui.auth.AuthScreen
 import com.example.campuscravings.ui.auth.AuthViewModel
 import com.example.campuscravings.ui.customer.*
 import com.example.campuscravings.ui.delivery.DeliveryDashboardScreen
+import com.example.campuscravings.ui.delivery.DeliveryTrackingScreen
 import com.example.campuscravings.ui.delivery.DeliveryViewModel
 
 sealed class Screen(val route: String) {
@@ -22,6 +24,7 @@ sealed class Screen(val route: String) {
     object Checkout : Screen("checkout")
     object Orders : Screen("orders")
     object DeliveryDashboard : Screen("delivery_dashboard")
+    object DeliveryTracking : Screen("delivery_tracking")
 }
 
 @Composable
@@ -30,7 +33,7 @@ fun AppNavigation(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val currentUser by authViewModel.currentUser.collectAsState()
-    
+
     val startDestination = if (currentUser != null) {
         when (currentUser?.role) {
             UserRole.CUSTOMER -> Screen.RestaurantList.route
@@ -40,7 +43,7 @@ fun AppNavigation(
     } else {
         Screen.Auth.route
     }
-    
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -61,9 +64,12 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.RestaurantList.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             RestaurantListScreen(
                 viewModel = viewModel,
                 onRestaurantClick = { restaurant ->
@@ -75,18 +81,24 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.Menu.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             MenuScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onCheckout = { navController.navigate(Screen.Checkout.route) }
             )
         }
-        
+
         composable(Screen.Checkout.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             CheckoutScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
@@ -97,18 +109,24 @@ fun AppNavigation(
                 }
             )
         }
-        
+
         composable(Screen.Orders.route) {
-            val viewModel: CustomerViewModel = hiltViewModel()
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.RestaurantList.route)
+            }
+            val viewModel: CustomerViewModel = hiltViewModel(parentEntry)
             OrdersScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }
-        
+
         composable(Screen.DeliveryDashboard.route) {
             val viewModel: DeliveryViewModel = hiltViewModel()
             DeliveryDashboardScreen(viewModel = viewModel)
+        }
+        composable("delivery_tracking") {
+            DeliveryTrackingScreen()
         }
     }
 }

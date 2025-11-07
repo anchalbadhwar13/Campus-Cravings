@@ -46,3 +46,4 @@ We focused on a smooth user experience, ensuring that both ordering and deliveri
 * Integrate real-time tracking and notifications for faster and more transparent deliveries.
 * Implement ratings and rewards to incentivize reliable student deliverers.
 * Explore partnerships with campus eateries to offer exclusive deals and discounts.
+* 
